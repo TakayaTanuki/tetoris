@@ -1,0 +1,4 @@
+.divisionSide{
+display: grid;/*grid layoutを用いる*/
+grid-template-columns: 1fr 6fr 2fr 1fr;/*横幅全体を3分割する*/
+}
