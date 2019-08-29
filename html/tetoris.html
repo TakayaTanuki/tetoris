@@ -3,6 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <!--width=device-widthは、横幅がデバイスの横幅となるように指定しています。
+        initial-scale=1は、初期の表示倍率を指定しています。 -->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>テトリス</title>
     <script src="..\javascript\tetoris.js" defer></script>
     <link rel="stylesheet" href="..\css\tetoris.css">
@@ -14,14 +17,24 @@
         <div class="leftSide">
         </div>
 
+        <!--次に落ちるブロックを表示-->
+        <span class="nextFallingDisplay">
+            <canvas id="nextFallingCanvas" width="300" height="200"></canvas>
+        </span>
+
         <!--ブロックが落ちる部分を表示-->
-        <div class="centerLeftSide">
-            aaa
+        <div class="fallingBlockDisplay">
+            <canvas id="fallingBlockCanvas" width="300" height="600"></canvas>
         </div>
 
-        <!--点数表示やユーザ操作ボタンを表示-->
-        <div class="centerRightSide">
+        <!--点数表示-->
+        <div class="scoreDisplay">
             bbb
+        </div>
+
+        <!--ユーザが操作するボタンを表示-->
+        <div class="userOperationDisplay">
+            userOperationDisplay
         </div>
 
         <!--右側の空白を表示-->
