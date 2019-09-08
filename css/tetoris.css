@@ -4,7 +4,7 @@ margin:0;
 height: 95vh;/*divisionSideを画面いっぱいに表示*/
 width: 95vw;
 grid-template-columns: 2fr 6fr 3fr 2fr;/*横幅全体を4分割する*/
-grid-template-rows: 2fr 4fr 10fr;/*縦幅全体を3分割する*/
+grid-template-rows: 1fr 1fr 5fr;/*縦幅全体を3分割する*/
 }
 
 body >*{
@@ -52,12 +52,12 @@ body >*{
 
 #nextFallingCanvas{
     /*widhtとheightを100%にすることでdivとcanvasの間の隙間をなくす*/
-    width: 100%;
-    height: 100%;
+    /* width: 100%;
+    height: 100%; */
 }
 
 #fallingBlockCanvas{
     /*widhtとheightを100%にすることでdivとcanvasの間の隙間をなくす*/
-    width: 100%;
-    height: 100%;
+    /* width: 100%;
+    height: 100%; */
 }
