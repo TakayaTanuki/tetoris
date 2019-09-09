@@ -38,56 +38,8 @@ class Tetoris {
 
         this.loopTime;
         this.movingBlock = [[0, 0], [0, 0], [0, 0], [0, 0]];
-        this.blocks = [
-            {/*横長棒を作成
-                □□□□
-            */
-                shape: [[0, 0], [1, 0], [2, 0], [3, 0]],
-                color: 'aqua'
-            },
-            {/*L字を作成
-                  □
-                □□□
-            */
-                shape: [[2, 0], [0, 1], [1, 1], [2, 1]],
-                color: '#FF6600'
-            },
-            {/*逆L字(J)を作成
-                □  
-                □□□
-            */
-                shape: [[0, 0], [0, 1], [1, 1], [2, 1]],
-                color: 'blue'
-            },
-            {/*Z字を作成
-               □□
-                □□
-            */
-                shape: [[0, 0], [0, 1], [1, 1], [2, 1]],
-                color: 'red'
-            },
-            {/*逆Z字(S字)を作成
-                 □□
-                □□
-            */
-                shape: [[1, 0], [2, 0], [0, 1], [1, 1]],
-                color: 'green'
-            },
-            {/*四角を作成
-               □□
-            　 □□
-            */
-                shape: [[0, 0], [0, 1], [1, 0], [1, 1]],
-                color: 'yellow'
-            },
-            {/*T字を作成
-                □
-               □□□
-            */
-                shape: [[0, 1], [1, 0], [1, 2], [2, 2]],
-                color: '#FF66FF'
-            }
-        ];
+        this.blocks = this.CreateBlocks();
+
     }
 
     set loopTimeField(value) {
@@ -119,19 +71,83 @@ class Tetoris {
     }
 
     MoveRight() {
-        console.log('右');
-        /*----------枠を描画する----------*/
-        this.PaintFallingCanvas();
-        /*--------------------------------*/
         this.fallingBlockContext.clearRect(0, 0, this.fallingBlockCanvasWidth, this.fallingBlockCanvasLength);
         //左上の色を塗る
         this.fallingBlockContext.fillStyle = this.blocks[0].color;
 
-        for (let k = 0; k < this.blocks[0].shape.length; k++) {
-            this.fallingBlockContext.fillRect(this.rectangleWidth * this.blocks[0].shape[k][0] + this.rectangleWidth,
-                this.rectangleLength * this.blocks[0].shape[k][1] + this.rectangleLength * this.loopTime,
-                this.rectangleWidth, this.rectangleLength);
+        for (let k = 0; k < this.movingBlock.length; k++) {
+            this.fallingBlockContext.fillRect(this.movingBlock[k][0] + this.rectangleWidth, this.movingBlock[k][1], this.rectangleWidth, this.rectangleLength);
+            console.log(this.movingBlock[k][0] + this.rectangleWidth, this.movingBlock[k][1], this.rectangleWidth, this.rectangleLength);
+            this.movingBlockField = [[this.movingBlock[k][0] + this.rectangleWidth, this.movingBlock[k][1], this.rectangleWidth, this.rectangleLength], k];
         }
+        console.log(this.movingBlock);
+        /*----------枠を描画する----------*/
+        this.PaintFallingCanvas();
+        /*--------------------------------*/
+
+    }
+
+    CreateBlocks() {
+        // 元の配列の複製を作成
+        let sourceArr = [
+            {/*横長棒を作成
+                    □□□□
+                */
+                shape: [[0, 0], [1, 0], [2, 0], [3, 0]],
+                color: 'aqua'
+            },
+            {/*L字を作成
+                      □
+                    □□□
+                */
+                shape: [[2, 0], [0, 1], [1, 1], [2, 1]],
+                color: '#FF6600'
+            },
+            {/*逆L字(J)を作成
+                    □  
+                    □□□
+                */
+                shape: [[0, 0], [0, 1], [1, 1], [2, 1]],
+                color: 'blue'
+            },
+            {/*Z字を作成
+                   □□
+                    □□
+                */
+                shape: [[0, 0], [0, 1], [1, 1], [2, 1]],
+                color: 'red'
+            },
+            {/*逆Z字(S字)を作成
+                     □□
+                    □□
+                */
+                shape: [[1, 0], [2, 0], [0, 1], [1, 1]],
+                color: 'green'
+            },
+            {/*四角を作成
+                   □□
+                　 □□
+                */
+                shape: [[0, 0], [0, 1], [1, 0], [1, 1]],
+                color: 'yellow'
+            },
+            {/*T字を作成
+                    □
+                   □□□
+                */
+                shape: [[0, 1], [1, 0], [1, 1], [2, 1]],
+                color: '#FF66FF'
+            }
+        ];
+        const array = sourceArr.concat();
+        // Fisher–Yatesのアルゴリズム
+        const arrayLength = array.length;
+        for (let i = arrayLength - 1; i >= 0; i--) {
+            const randomIndex = Math.floor(Math.random() * (i + 1));
+            [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+        }
+        return array;
+
     }
 };
 
@@ -143,11 +159,6 @@ const createCanvasOutline = () => {
     tetoris.nextFallingContext.linewidth = 0;
     tetoris.fallingBlockContext.linewidth = 0;
 
-    //横移動
-    let moveLength = 0;
-    //縦移動
-    let moveWidth = 0;
-
     tetoris.nextFallingContext.strokeRect(0, 0, tetoris.nextFallingCanvasWidth, tetoris.nextFallingCanvasLength);
 
     /*----------枠を描画する----------*/
@@ -158,28 +169,27 @@ const createCanvasOutline = () => {
     const intervalId = setInterval(() => {
         tetoris.fallingBlockContext.clearRect(0, 0, tetoris.fallingBlockCanvasWidth, tetoris.fallingBlockCanvasLength);
 
+        //Blockを選択する(後々ここの0を変数に)
+        for (let i = 0; i < tetoris.blocks[0].shape.length; i++) {
+            tetoris.movingBlockField = [[tetoris.blocks[0].shape[i][0], tetoris.blocks[0].shape[i][1]], i];
+        }
+
         //左上の色を塗る
         tetoris.fallingBlockContext.fillStyle = tetoris.blocks[0].color;
 
-        for (let k = 0; k < tetoris.blocks[0].shape.length; k++) {
-            tetoris.fallingBlockContext.fillRect(tetoris.rectangleWidth * tetoris.blocks[0].shape[k][0] + moveLength,
-                tetoris.rectangleLength * tetoris.blocks[0].shape[k][1] + tetoris.rectangleLength * tetoris.loopTime + moveWidth,
+        for (let k = 0; k < tetoris.movingBlock.length; k++) {
+            tetoris.fallingBlockContext.fillRect(tetoris.rectangleWidth * tetoris.movingBlock[k][0],
+                tetoris.rectangleLength * tetoris.movingBlock[k][1] + tetoris.rectangleLength * tetoris.loopTime,
                 tetoris.rectangleWidth, tetoris.rectangleLength);
-            tetoris.movingBlockField = [[tetoris.rectangleWidth * tetoris.blocks[0].shape[k][0] + moveLength, tetoris.rectangleLength * tetoris.blocks[0].shape[k][1] + tetoris.rectangleLength * tetoris.loopTime + moveWidth], k];
-            console.log(tetoris.movingBlock);
+            tetoris.movingBlockField = [[tetoris.rectangleWidth * tetoris.movingBlock[k][0], tetoris.rectangleLength * tetoris.movingBlock[k][1] + tetoris.rectangleLength * tetoris.loopTime], k];
         }
         if (tetoris.loopTime != 19) {
             tetoris.loopTimeField = tetoris.loopTime + 1;
         }
 
-        // if (loopTime < 8) {
-        //     moveLength += tetoris.rectangleWidth;
-        // } else if (loopTime < 14) {
-        // } else {
-        //     moveLength -= tetoris.rectangleWidth;
-        // }
         window.onkeydown = (event) => {
             if (event.keyCode === 39) {
+                console.log('右');
                 tetoris.MoveRight(tetoris);
             }
             //左
