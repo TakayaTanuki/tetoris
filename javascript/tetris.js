@@ -509,6 +509,7 @@ class Tetoris {
                 if (l === 9 && existBlockFlag) {
                     //配列の要素を消去
                     console.log(`${this.stateLength - (i + 1)}の行が1列揃いました！`);
+
                 }
             }
         }
