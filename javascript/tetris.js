@@ -8,7 +8,7 @@ L:オレンジ
 T:紫
 */
 
-class Tetoris {
+class Tetris {
     constructor() {
 
         //canvas要素の大きさを取得(画面サイズがリサイズした場合大きさ変わる？？？)
@@ -37,6 +37,7 @@ class Tetoris {
         this.fallingBlockContext = fallingBlockCanvas.getContext('2d');
 
         this.loopCount = 0;
+        this.nextBlockLoopCountForNextBlock = 1;
         this.rorateCount = 0;
         this.movingBlock = [[0, 0], [0, 0], [0, 0], [0, 0]];
         this.nextBlock = [[0, 0], [0, 0], [0, 0], [0, 0]];
@@ -44,17 +45,15 @@ class Tetoris {
 
         this.blocks = this.CreateBlocks();
         this.movingBlockColor = this.blocks[this.loopCount].color;
-        this.nextBlockColor = this.blocks[this.loopCount + 1].color;
+        this.nextBlockColor = this.blocks[this.nextBlockLoopCountForNextBlock].color;
 
         window.onkeydown = (event) => {
             //右
             if (event.keyCode === 39) {
-                console.log('右');
                 this.MoveRight();
             }
             //左
             if (event.keyCode === 37) {
-                console.log('左');
                 this.MoveLeft();
             }
             //上
@@ -63,7 +62,6 @@ class Tetoris {
             }
             //下
             if (event.keyCode === 40) {
-                console.log('下');
                 this.MoveDown();
             }
             // if (event.keyCode === 13) {
@@ -85,6 +83,8 @@ class Tetoris {
             this.MoveRight();
         });
 
+        //コンストラクタ生成時点でCanvasに枠線を描画する
+        this.PaintFallingCanvas();
 
     }
 
@@ -116,7 +116,9 @@ class Tetoris {
         return this.rorateCount;
     }
 
-
+    ClearFallingCanvas() {
+        this.fallingBlockContext.clearRect(0, 0, this.fallingBlockCanvasWidth, this.fallingBlockCanvasLength);
+    }
 
     PaintFallingCanvas() {
         this.fallingBlockContext.fillStyle = 'black';
@@ -132,8 +134,9 @@ class Tetoris {
 
     MoveRight() {
         //一旦描画したものを初期化する必要がある
-        this.fallingBlockContext.clearRect(0, 0, this.fallingBlockCanvasWidth, this.fallingBlockCanvasLength);
-        this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+        this.ClearFallingCanvas();
+        // this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+        this.fallingBlockContext.fillStyle = this.movingBlockColor;
 
         //移動する前のブロックを保持(let cloneBlock = this.movingBlockだと参照先が渡されるので、配列の値をコピーして代入する必要有
         let cloneBlock = this.movingBlock.concat();
@@ -157,8 +160,9 @@ class Tetoris {
     }
 
     MoveLeft() {
-        this.fallingBlockContext.clearRect(0, 0, this.fallingBlockCanvasWidth, this.fallingBlockCanvasLength);
-        this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+        this.ClearFallingCanvas();
+        // this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+        this.fallingBlockContext.fillStyle = this.movingBlockColor;
 
         let cloneBlock = this.movingBlock.concat();
 
@@ -183,8 +187,9 @@ class Tetoris {
     MoveDown() {
 
         if (this.CheckMoveDown(this.movingBlock)) {
-            this.fallingBlockContext.clearRect(0, 0, this.fallingBlockCanvasWidth, this.fallingBlockCanvasLength);
-            this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+            this.ClearFallingCanvas();
+            //this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+            this.fallingBlockContext.fillStyle = this.movingBlockColor;
 
             for (let i = 0; i < this.movingBlock.length; i++) {
                 this.fallingBlockContext.fillRect(this.movingBlock[i][0], this.movingBlock[i][1] + this.rectangleLength, this.rectangleWidth, this.rectangleLength);
@@ -199,9 +204,11 @@ class Tetoris {
 
     //右回転
     Rotate() {
-        this.fallingBlockContext.clearRect(0, 0, this.fallingBlockCanvasWidth, this.fallingBlockCanvasLength);
-        this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+        this.ClearFallingCanvas();
+        //this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
+        this.fallingBlockContext.fillStyle = this.movingBlockColor;
         let cloneBlock;
+        console.log(`回転する際のカラー:${this.movingBlockColor}`);
         //Blockの中を入れ替える
         if (this.movingBlockColor === 'yellow') {
             //四角用
@@ -382,9 +389,11 @@ class Tetoris {
             //表示されている全ブロックと比較し、ブロックが重なってしまうかチェック
             this.allBlocksList.forEach((value) => {
                 for (let l = 0; l < value.shape.length; l++) {
-                    if (targetBlock[i][1] + this.rectangleLength === value.shape[l][1] && targetBlock[i][0] === value.shape[l][0]) {
-                        flgMoveDown = false;
-                        break;
+                    if (value.shape[l] !== undefined && value.shape[l] !== null) {
+                        if (targetBlock[i][1] + this.rectangleLength === value.shape[l][1] && targetBlock[i][0] === value.shape[l][0]) {
+                            flgMoveDown = false;
+                            break;
+                        }
                     }
                 }
             });
@@ -461,7 +470,7 @@ class Tetoris {
         this.nextFallingContext.clearRect(0, 0, this.nextFallingCanvasWidth, this.nextFallingCanvasLength);
 
         this.nextFallingContext.fillStyle = this.nextBlockColor;
-        for (let i = 0; i < this.blocks[this.loopCount + 1].shape.length; i++) {
+        for (let i = 0; i < this.blocks[this.nextBlockLoopCountForNextBlock].shape.length; i++) {
             this.nextFallingContext.fillRect(this.nextBlock[i][0], this.nextBlock[i][1] + this.rectangleLength,
                 this.rectangleWidth, this.rectangleLength);
         }
@@ -478,11 +487,14 @@ class Tetoris {
     }
 
     DisplayAllBlocks() {
+
         //Listの中身を全表示することで、全てのブロックを表示する
         this.allBlocksList.forEach((value) => {
             this.fallingBlockContext.fillStyle = value.color;
             for (let i = 0; i < value.shape.length; i++) {
-                this.fallingBlockContext.fillRect(value.shape[i][0], value.shape[i][1], this.rectangleWidth, this.rectangleLength);
+                if (value.shape[i] !== undefined && value.shape[i] !== null) {
+                    this.fallingBlockContext.fillRect(value.shape[i][0], value.shape[i][1], this.rectangleWidth, this.rectangleLength);
+                }
             }
         });
         //枠線の描画
@@ -497,8 +509,14 @@ class Tetoris {
             for (let l = 0; l < this.stateWidth; l++) {
                 let existBlockFlag = null;
                 for (let k = 0; k < 4; k++) {
-                    existBlockFlag = this.allBlocksList.some(block => block.shape[k][0] === l * this.rectangleWidth
-                        && block.shape[k][1] === (this.stateLength - (i + 1)) * this.rectangleLength);
+                    existBlockFlag = this.allBlocksList.some((block) => {
+
+                        if (block.shape[k] !== undefined && block.shape[k] !== null) {
+                            return block.shape[k][0] === l * this.rectangleWidth
+                                && block.shape[k][1] === (this.stateLength - (i + 1)) * this.rectangleLength
+                        }
+                    });
+
                     if (existBlockFlag) {
                         break;
                     }
@@ -509,85 +527,138 @@ class Tetoris {
                 if (l === 9 && existBlockFlag) {
                     //配列の要素を消去
                     console.log(`${this.stateLength - (i + 1)}の行が1列揃いました！`);
+                    // const newAllBlocksList = this.allBlocksList.filter((value) => {
+                    //     for (let m = 0; m < value.shape.length; m++) {
+                    //         value.shape[m][1] < (this.stateLength - (i + 1)) * this.rectangleLength
+                    //         console.log(value.shape[m][1] < (this.stateLength - (i + 1)) * this.rectangleLength);
+                    //     }
+                    // });
+                    // console.log(`newAllBlocksList:${newAllBlocksList}`);
+                    this.allBlocksList.forEach(value => {
+                        for (let m = 0; m < value.shape.length; m++) {
+                            if (value.shape[m] !== undefined && value.shape[m] !== null) {
+                                if (value.shape[m][1] === (this.stateLength - (i + 1)) * this.rectangleLength) {
+                                    delete value.shape[m];
+                                }
+                            }
+                        }
+                    });
 
+                    //対象行より上のブロックを一段下に移動する
+                    this.FallTargetsBlocks(this.stateLength - (i + 1));
+                    //i=i-1とすることで、一段下に移動したブロックも判定対象にする
+                    i = i - 1;
                 }
             }
         }
-
+        this.ClearFallingCanvas();
+        this.DisplayAllBlocks();
     }
 
+    //指定した行より上のブロックを全て1段下に落とす
+    FallTargetsBlocks(targetRow) {
+        this.allBlocksList.forEach(value => {
+            for (let i = 0; i < value.shape.length; i++) {
+                if (value.shape[i] !== undefined && value.shape[i] !== null) {
+                    if (value.shape[i][1] < targetRow * this.rectangleLength) {
+                        console.log(`value.shape[i][1]:${value.shape[i][1]},targetRow*this.rectangleLength:${targetRow * this.rectangleLength}`);
+                        value.shape[i][1] = value.shape[i][1] + this.rectangleLength;
+                        console.log(`value.shape[i][1]:${value.shape[i][1]}`)
+                    }
+                }
+            }
+        });
+
+    }
 
 };
 
-const createCanvasOutline = (tetoris) => {
-
+const createCanvasOutline = (tetris) => {
     //context.lineWidthで線の幅を取得(1以上にすると線の幅も幅の計算に入る)
-    tetoris.nextFallingContext.linewidth = 0;
-    tetoris.fallingBlockContext.linewidth = 0;
+    tetris.nextFallingContext.linewidth = 0;
+    tetris.fallingBlockContext.linewidth = 0;
 
-    tetoris.nextFallingContext.strokeRect(0, 0, tetoris.nextFallingCanvasWidth, tetoris.nextFallingCanvasLength);
+    tetris.nextFallingContext.strokeRect(0, 0, tetris.nextFallingCanvasWidth, tetris.nextFallingCanvasLength);
 
-    /*----------枠を描画する----------*/
-    tetoris.PaintFallingCanvas();
-    /*--------------------------------*/
+    //下のせいで太くなっちゃってる
+    // /*----------枠を描画する----------*/
+    // tetris.PaintFallingCanvas();
+    // /*--------------------------------*/
     //Blockを選択する
-    for (let i = 0; i < tetoris.blocks[tetoris.loopCount].shape.length; i++) {
-        tetoris.movingBlockField = [[tetoris.rectangleWidth * tetoris.blocks[tetoris.loopCount].shape[i][0]
-            + 3 * tetoris.rectangleWidth, tetoris.rectangleLength * tetoris.blocks[tetoris.loopCount].shape[i][1] - tetoris.rectangleLength], i];
+    for (let i = 0; i < tetris.blocks[tetris.loopCount].shape.length; i++) {
+        tetris.movingBlockField = [[tetris.rectangleWidth * tetris.blocks[tetris.loopCount].shape[i][0]
+            + 3 * tetris.rectangleWidth, tetris.rectangleLength * tetris.blocks[tetris.loopCount].shape[i][1] - tetris.rectangleLength], i];
     }
+    //Blockの色も設定
+    tetris.movingBlockColor = tetris.blocks[tetris.loopCount].color;
+    if (tetris.nextBlockLoopCountForNextBlock + 1 === 7) {
+        tetris.nextBlockLoopCountForNextBlock = 0;
+        tetris.blocks = tetris.CreateBlocks();
+        //tetris.blocks;
+    } else {
+        tetris.nextBlockLoopCountForNextBlock = tetris.loopCount + 1;
+    }
+    tetris.nextBlockColor = tetris.blocks[tetris.nextBlockLoopCountForNextBlock].color;
 
     //次に落ちるBlockを選択する
-    for (let i = 0; i < tetoris.blocks[tetoris.loopCount + 1].shape.length; i++) {
-        tetoris.nextBlockField = [[tetoris.rectangleWidth * tetoris.blocks[tetoris.loopCount + 1].shape[i][0]
-            + 3 * tetoris.rectangleWidth, tetoris.rectangleLength * tetoris.blocks[tetoris.loopCount + 1].shape[i][1]], i];
+    for (let i = 0; i < tetris.blocks[tetris.nextBlockLoopCountForNextBlock].shape.length; i++) {
+        tetris.nextBlockField = [[tetris.rectangleWidth * tetris.blocks[tetris.nextBlockLoopCountForNextBlock].shape[i][0]
+            + 3 * tetris.rectangleWidth, tetris.rectangleLength * tetris.blocks[tetris.nextBlockLoopCountForNextBlock].shape[i][1]], i];
     }
 
-    tetoris.DisplayNextBlock();
-    tetoris.rorateCount = 0;
+    tetris.DisplayNextBlock();
+    tetris.rorateCount = 0;
 
     const intervalId = setInterval(() => {
 
         //左上の色を塗る
-        tetoris.fallingBlockContext.fillStyle = tetoris.blocks[tetoris.loopCount].color;
+        tetris.fallingBlockContext.fillStyle = tetris.movingBlockColor;
+        //tetris.fallingBlockContext.fillStyle = tetris.blocks[tetris.loopCount].color;
 
-        const loopFlag = tetoris.CheckMoveDown(tetoris.movingBlock);
+        const loopFlag = tetris.CheckMoveDown(tetris.movingBlock);
         if (loopFlag) {
-            tetoris.fallingBlockContext.clearRect(0, 0, tetoris.fallingBlockCanvasWidth, tetoris.fallingBlockCanvasLength);
+            tetris.fallingBlockContext.clearRect(0, 0, tetris.fallingBlockCanvasWidth, tetris.fallingBlockCanvasLength);
 
-            for (let i = 0; i < tetoris.movingBlock.length; i++) {
-                tetoris.fallingBlockContext.fillRect(tetoris.movingBlock[i][0], tetoris.movingBlock[i][1] + tetoris.rectangleLength,
-                    tetoris.rectangleWidth, tetoris.rectangleLength);
-                tetoris.movingBlockField = [[tetoris.movingBlock[i][0], tetoris.movingBlock[i][1] + tetoris.rectangleLength], i];
+            for (let i = 0; i < tetris.movingBlock.length; i++) {
+                tetris.fallingBlockContext.fillRect(tetris.movingBlock[i][0], tetris.movingBlock[i][1] + tetris.rectangleLength,
+                    tetris.rectangleWidth, tetris.rectangleLength);
+                tetris.movingBlockField = [[tetris.movingBlock[i][0], tetris.movingBlock[i][1] + tetris.rectangleLength], i];
             }
-            tetoris.DisplayAllBlocks();
+            tetris.DisplayAllBlocks();
         } else {
             clearInterval(intervalId);
-            tetoris.allBlocksList.push(
-                {
-                    shape: tetoris.movingBlock.concat(),
-                    color: tetoris.movingBlockColor
-                });
-            tetoris.CheckRowComplete();
-            //ループが終了し、次に落ちるブロックを落下中のブロックとし、次に落ちるブロックに新たなブロックを追加
-            // if (tetoris.loopCount !== 6) {
-            //     tetoris.loopCount++;
-            // } else {
-            //     tetoris.loopCount = 0;
-            // }
 
-            createCanvasOutline(tetoris);
+            //ループが終了し、次に落ちるブロックを落下中のブロックとし、次に落ちるブロックに新たなブロックを追加
+            if (tetris.loopCount !== 6) {
+                tetris.loopCount++;
+            } else {
+                tetris.loopCount = 0;
+            }
+
+            tetris.allBlocksList.push(
+                {
+                    shape: tetris.movingBlock.concat(),
+                    color: tetris.movingBlockColor
+                });
+
+            tetris.CheckRowComplete();
+
+
+            createCanvasOutline(tetris);
         }
 
     }, 1000);
     console.log(5);
 }
-const tetoris = new Tetoris();
-createCanvasOutline(tetoris);
+const tetris = new Tetris();
+createCanvasOutline(tetris);
 
 //console.log(blocks[0].shape[3][0]);
 //上記の場合、block[blockの中の配列番号].shape[0~3つの配列の中から1つ][0,1のどちらか]
 
 /*Todo
-・1行揃ったら行消す
-・ループが終了し、次に落ちるブロックを落下中のブロックとし、次に落ちるブロックに新たなブロックを追加
+・ボタンの調整
+・点数(mustではない)
+・回転＋横移動の際、ブロックと重なってしまう場合がある
+・一番最初、横長棒を回転できてしまうとダメなのに、できてしまう
 */
