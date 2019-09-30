@@ -12,6 +12,20 @@
 </head>
 
 <body>
+    <div id="popup1" class="overlay">
+        <div class="popup">
+            <h2>GameOver</h2>
+            <a class="close" href="#" onclick="window.close()">&times;</a>
+            <div class="content">
+                <p>
+                    <!--hrefで何も指定しないとページの再表示を行う-->
+                    <a href="">今回はプレイして頂きありがとうございます。もう一度遊ぶ場合は、このリンクをクリックして下さい。</a>
+                </p>
+                プレイを終了する場合は、右上の×ボタンを押して下さい。
+            </div>
+        </div>
+    </div>
+
     <div class="divisionSide">
         <!--左側の空白を表示-->
         <div class="leftSide">
@@ -29,7 +43,7 @@
 
         <!--点数表示-->
         <div class="scoreDisplay">
-            bbb
+
         </div>
 
         <!--ユーザが操作するボタンを表示-->

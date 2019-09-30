@@ -11,14 +11,12 @@ T:紫
 ・一度降ったミノは他のまだ出てないミノが出尽くすまで、つまり一巡するまで出ないというルール。
 <盤面>
 ・横10マス×縦20マス
-
-
 */
 
 class Tetris {
     constructor() {
 
-        //canvas要素の大きさを取得(画面サイズがリサイズした場合大きさ変わる？？？)
+        //canvas要素の大きさを取得
         this.nextFallingCanvasWidth = document.querySelector('#nextFallingCanvas').offsetWidth;
         this.nextFallingCanvasLength = document.querySelector('#nextFallingCanvas').offsetHeight;
         //横
@@ -142,7 +140,6 @@ class Tetris {
     MoveRight() {
         //一旦描画したものを初期化する必要がある
         this.ClearFallingCanvas();
-        // this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
         this.fallingBlockContext.fillStyle = this.movingBlockColor;
 
         //移動する前のブロックを保持(let cloneBlock = this.movingBlockだと参照先が渡されるので、配列の値をコピーして代入する必要有
@@ -153,7 +150,7 @@ class Tetris {
             this.movingBlockField = [[this.movingBlock[i][0] + this.rectangleWidth, this.movingBlock[i][1], this.rectangleWidth, this.rectangleLength], i];
         }
         //加算した結果、canvasの範囲を超える場合は、cloneBlockを代入する
-        if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+        if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
             this.movingBlock = cloneBlock;
         }
         //movingBlockを描画
@@ -168,7 +165,6 @@ class Tetris {
 
     MoveLeft() {
         this.ClearFallingCanvas();
-        // this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
         this.fallingBlockContext.fillStyle = this.movingBlockColor;
 
         let cloneBlock = this.movingBlock.concat();
@@ -176,7 +172,7 @@ class Tetris {
         for (let i = 0; i < this.movingBlock.length; i++) {
             this.movingBlockField = [[this.movingBlock[i][0] - this.rectangleWidth, this.movingBlock[i][1], this.rectangleWidth, this.rectangleLength], i];
         }
-        if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+        if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
             this.movingBlock = cloneBlock;
         }
         //movingBlockを描画
@@ -195,7 +191,6 @@ class Tetris {
 
         if (this.CheckMoveDown(this.movingBlock)) {
             this.ClearFallingCanvas();
-            //this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
             this.fallingBlockContext.fillStyle = this.movingBlockColor;
 
             for (let i = 0; i < this.movingBlock.length; i++) {
@@ -212,7 +207,6 @@ class Tetris {
     //右回転
     Rotate() {
         this.ClearFallingCanvas();
-        //this.fallingBlockContext.fillStyle = this.blocks[this.loopCount].color;
         this.fallingBlockContext.fillStyle = this.movingBlockColor;
         let cloneBlock;
         console.log(`回転する際のカラー:${this.movingBlockColor}`);
@@ -221,7 +215,7 @@ class Tetris {
             //四角用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.movingBlock[2], this.movingBlock[0], this.movingBlock[3], this.movingBlock[1]];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -230,7 +224,7 @@ class Tetris {
             //T字用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.movingBlock[1], this.movingBlock[3], this.movingBlock[2], this.InvertCenter(this.movingBlock[3])];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -239,7 +233,7 @@ class Tetris {
             //S字用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.movingBlock[3], this.InvertEdge(this.movingBlock[1]), this.movingBlock[2], this.InvertCenterForS(this.movingBlock[3])];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -248,7 +242,7 @@ class Tetris {
             //Z字用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.InvertEdgeForZ(this.movingBlock[0]), this.movingBlock[3], this.movingBlock[2], this.InvertCenter(this.movingBlock[3])];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -257,7 +251,7 @@ class Tetris {
             //J字用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.InvertEdgeForZ(this.movingBlock[0]), this.InvertCenterForJ(this.movingBlock[1]), this.movingBlock[2], this.InvertCenter(this.movingBlock[3])];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -266,7 +260,7 @@ class Tetris {
             //L字用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.InvertEdge(this.movingBlock[0]), this.InvertCenterForJ(this.movingBlock[1]), this.movingBlock[2], this.InvertCenter(this.movingBlock[3])];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -275,7 +269,7 @@ class Tetris {
             //横棒用
             cloneBlock = this.movingBlock;
             this.movingBlock = [this.InvertCenterForJ(this.movingBlock[0]), this.movingBlock[1], this.InvertCenter(this.movingBlock[2]), this.InvertCenterForBar(this.movingBlock[3])];
-            if (this.CheckMoveAndRotate(this.movingBlock) === false) {
+            if (this.CheckMoveAndRotate(this.movingBlock) === false || this.CheckAlreadyExistBlock(this.movingBlock) === true) {
                 this.movingBlock = cloneBlock;
             } else {
                 this.rorateCountField = this.rorateCount + 1;
@@ -378,7 +372,7 @@ class Tetris {
     CheckMoveAndRotate(targetBlock) {
         let flgMoveAndRorate = true;
         for (let i = 0; i < targetBlock.length; i++) {
-            if (targetBlock[i][0] >= this.fallingBlockCanvasWidth || targetBlock[i][0] < 0) {
+            if (targetBlock[i][0] >= this.fallingBlockCanvasWidth || targetBlock[i][0] < 0 || targetBlock[i][1] < 0) {
                 flgMoveAndRorate = false;
             }
         }
@@ -534,13 +528,6 @@ class Tetris {
                 if (l === 9 && existBlockFlag) {
                     //配列の要素を消去
                     console.log(`${this.stateLength - (i + 1)}の行が1列揃いました！`);
-                    // const newAllBlocksList = this.allBlocksList.filter((value) => {
-                    //     for (let m = 0; m < value.shape.length; m++) {
-                    //         value.shape[m][1] < (this.stateLength - (i + 1)) * this.rectangleLength
-                    //         console.log(value.shape[m][1] < (this.stateLength - (i + 1)) * this.rectangleLength);
-                    //     }
-                    // });
-                    // console.log(`newAllBlocksList:${newAllBlocksList}`);
                     this.allBlocksList.forEach(value => {
                         for (let m = 0; m < value.shape.length; m++) {
                             if (value.shape[m] !== undefined && value.shape[m] !== null) {
@@ -578,6 +565,25 @@ class Tetris {
 
     }
 
+    //対象のブロックが重なるかチェックする
+    CheckAlreadyExistBlock(targetBlock) {
+        let flgExistBlock = false;
+        for (let i = 0; i < targetBlock.length; i++) {
+            this.allBlocksList.forEach((value) => {
+                for (let l = 0; l < value.shape.length; l++) {
+                    if (value.shape[l] !== undefined && value.shape[l] !== null) {
+                        if (targetBlock[i][1] === value.shape[l][1] && targetBlock[i][0] === value.shape[l][0]) {
+                            flgExistBlock = true;
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+        return flgExistBlock;
+    }
+
+
 };
 
 const createCanvasOutline = (tetris) => {
@@ -587,10 +593,6 @@ const createCanvasOutline = (tetris) => {
 
     tetris.nextFallingContext.strokeRect(0, 0, tetris.nextFallingCanvasWidth, tetris.nextFallingCanvasLength);
 
-    //下のせいで太くなっちゃってる
-    // /*----------枠を描画する----------*/
-    // tetris.PaintFallingCanvas();
-    // /*--------------------------------*/
     //Blockを選択する
     for (let i = 0; i < tetris.blocks[tetris.loopCount].shape.length; i++) {
         tetris.movingBlockField = [[tetris.rectangleWidth * tetris.blocks[tetris.loopCount].shape[i][0]
@@ -601,7 +603,6 @@ const createCanvasOutline = (tetris) => {
     if (tetris.nextBlockLoopCountForNextBlock + 1 === 7) {
         tetris.nextBlockLoopCountForNextBlock = 0;
         tetris.blocks = tetris.CreateBlocks();
-        //tetris.blocks;
     } else {
         tetris.nextBlockLoopCountForNextBlock = tetris.loopCount + 1;
     }
@@ -618,12 +619,10 @@ const createCanvasOutline = (tetris) => {
 
     const intervalId = setInterval(() => {
 
-        //左上の色を塗る
         tetris.fallingBlockContext.fillStyle = tetris.movingBlockColor;
-        //tetris.fallingBlockContext.fillStyle = tetris.blocks[tetris.loopCount].color;
-
         const loopFlag = tetris.CheckMoveDown(tetris.movingBlock);
-        if (loopFlag) {
+        const finishFlag = tetris.CheckAlreadyExistBlock(tetris.movingBlock);
+        if (loopFlag && !finishFlag) {
             tetris.fallingBlockContext.clearRect(0, 0, tetris.fallingBlockCanvasWidth, tetris.fallingBlockCanvasLength);
 
             for (let i = 0; i < tetris.movingBlock.length; i++) {
@@ -632,7 +631,7 @@ const createCanvasOutline = (tetris) => {
                 tetris.movingBlockField = [[tetris.movingBlock[i][0], tetris.movingBlock[i][1] + tetris.rectangleLength], i];
             }
             tetris.DisplayAllBlocks();
-        } else {
+        } else if (!loopFlag && !finishFlag) {
             clearInterval(intervalId);
 
             //ループが終了し、次に落ちるブロックを落下中のブロックとし、次に落ちるブロックに新たなブロックを追加
@@ -650,12 +649,17 @@ const createCanvasOutline = (tetris) => {
 
             tetris.CheckRowComplete();
 
-
             createCanvasOutline(tetris);
+        } else if (!loopFlag && finishFlag) {
+            document.querySelector('.overlay').style.display = 'block';
         }
 
-    }, 1000);
-    console.log(5);
+    }, 800);
+
+    //ここでブロックを表示するなどの処理を行えば、バグが発生しなくなる???
+    //現状、次のブロック表示→0.8秒待機→落下ブロック表示
+    //ここに処理を記載すれば、次のブロック表示→0.8秒待機中に(処理)→落下ブロック表示
+
 }
 const tetris = new Tetris();
 createCanvasOutline(tetris);
@@ -664,9 +668,7 @@ createCanvasOutline(tetris);
 //上記の場合、block[blockの中の配列番号].shape[0~3つの配列の中から1つ][0,1のどちらか]
 
 /*Todo
-・ボタンの調整
-・GameOverを検出する
 ・点数(mustではない)
-・回転＋横移動の際、ブロックと重なってしまう場合がある
-・一番最初、横長棒を回転できてしまうとダメなのに、できてしまう
+・次に表示するブロックと実際にブロックが落下する際に時間のずれが生じる(バグ)
+・ブロックが落ちる前にキー操作で動かすとブロックの描画位置がおかしくなる(バグ)
 */
